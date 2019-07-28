@@ -16,6 +16,9 @@
 		.container{
 			padding-top: 10px;
 		}
+		.input-field #searchInput{
+			cursor: pointer;
+		}
 	</style>
 </head>
 
@@ -27,16 +30,19 @@
 					<h4 id = "heading"  class="left teal-text"><strong>BSE</strong> Bhavlist</h4>					
 				</div>
 				<div class="col s12 m5 input-field">
-					<input type="text" id="searchInput" onkeyup="searchItem()" title="Type in a name">
+					<input type="text" id="searchInput" title="Type in a name">
 					<label for="searchInput">Search by name</label>					
 				</div>	
 				<div class = "col s12 m4">
 					<span id = "FileDate" class="grey-text right">Published by <a href="https://www.bseindia.com/markets/MarketInfo/BhavCopy.aspx">BSE</a> on: </span>
 				</div>				
 			</div>
+
 			<div class="row">
 				<div class="col s12 m12">
-					
+						<div id = "bseLoader" class="progress">
+								<div class="indeterminate"></div>
+							</div>
 					<table class="striped responsive-table" id="searchTable">
 						<thead>
 							<tr>
@@ -47,119 +53,114 @@
 								<th>Close</th>
 								<th>High</th>
 								<th>Low</th>
-							</tr>
-							
-						</thead>
-						
-						<tbody id = "searchTableBody">
-							
-						</tbody>
-						
-					</table>
-					<div id = "bseLoader" class="progress">
-						<div class="indeterminate"></div>
-					</div>
+							</tr>							
+						</thead>						
+						<tbody id = "searchTableBody">					
+						</tbody>						
+					</table>					
 				</div>
 			</div>
+
 		</div>
 	</main>
-	<script>
+	<script>		
+
 		$( document ).ready(function() {
-			// Send the same request
 			fetch('/getBSEData')
-			.then(function (response) {
-				return response.json(); // But parse it as JSON this time
+			.then(function (response) {				
+				return response.json();
 			})
-			.then(function (stocks) {				
-				var FileDate = stocks.FileDate;
-				$("#FileDate").append(FileDate)
-				var table = document.getElementById("searchTableBody");
-				for (i = 0; i < stocks.code.length && i<10; i++)
-				{
-					var tr = document.createElement("tr");
-					var sno = document.createElement("td");
-					var code = document.createElement("td");
-					var name = document.createElement("td");
-					var open = document.createElement("td");
-					var close = document.createElement("td");
-					var high = document.createElement("td");
-					var low = document.createElement("td");
-					var change = document.createElement("span");
-					
-					if(stocks.change[i]<0){
-						$(change).attr('class','red-text');
-						$(change).append('<i class="material-icons">arrow_drop_down</i>');
-					}
-					else if(stocks.change[i]>0){
-						$(change).attr('class','green-text');
-						$(change).append('<i class="material-icons">arrow_drop_up</i>');
-					}
-					change.append(Math.round(Math.abs(stocks.change[i])*1000)/1000+"%");
-					
-					sno.append(i+1)
-					code.append(stocks.code[i]);
-					name.append(stocks.name[i]);
-					open.append(stocks.open[i]);					
-					close.append(stocks.close[i]);
-					close.append(change);
-					high.append(stocks.high[i]);
-					low.append(stocks.low[i]);
-					
-					tr.appendChild(sno);
-					tr.appendChild(code);
-					tr.appendChild(name);
-					tr.appendChild(open);
-					tr.appendChild(close);
-					tr.appendChild(high);
-					tr.appendChild(low);
-					
-					
-					table.appendChild(tr);					
-				}
+			.then(function (stocks) {		
+				// Save stock data in local Storage
+				localStorage['stockData'] = JSON.stringify(stocks);		
+				var FileDate = stocks[0].FileDate;
+				$("#FileDate").append(FileDate);
+				addStocksInTable(stocks.slice(0,10));
 				$("#bseLoader").hide();
 			})
+			var search = document.getElementById("searchInput");
+			
+			search.addEventListener("keyup", function(event) {
+				// Number 13 is the "Enter" key on the keyboard
+				if (event.keyCode === 13) {
+					// Cancel the default action
+					event.preventDefault();
+					searchItem();
+				}
+			});			
 		});
-		
-		function searchItem() {			
-			var input,filter, i, txtValue;			
+
+		function searchItem() {
+			$("#bseLoader").show();			
+			var stocks = JSON.parse(localStorage['stockData']);
+			$("#searchTableBody").empty();			
+			var input,filter, txtValue;			
 			input = document.getElementById("searchInput");
 			filter = input.value.toUpperCase();
-			var rows = $("#searchTable tr");
-			for (j = 1; j < rows.length; j++){
-				//debugger
-				var searchElements = rows[j].children;
-				for (i = 0; i < searchElements.length; i++){
-					
-					txtValue = searchElements[i].textContent;
-					if (txtValue.toUpperCase().indexOf(filter) > -1) {						
-						$(rows[j]).show();
-						break;
-					} else {
-						$(rows[j]).hide();
+			var stocksResult = [];
+			if(filter==""){
+				stocksResult = stocks.slice(0,10);
+			}
+			else{				
+				for(var i=0; i<stocks.length; i++){
+					if(stocks[i].SC_NAME.toUpperCase().indexOf(filter) > -1){
+						stocksResult.push(stocks[i]);									
 					}
 				}
-			}		
+			}			
+			addStocksInTable(stocksResult);
+			$("#bseLoader").hide();			
 		}
-		
-		function SearchBackup() {
-			var input, filter, ul, li, a, i, txtValue;			
-			input = document.getElementById("myInput");
-			filter = input.value.toUpperCase();
-			ul = document.getElementById("searchContent");
-			li = ul.getElementsByTagName("li");
-			for (i = 0; i < li.length; i++) {
-				a = li[i].getElementsByTagName("a")[0];
-				txtValue = a.textContent || a.innerText;
-				if (txtValue.toUpperCase().indexOf(filter) > -1) {
-					li[i].style.display = "";
-				} else {
-					li[i].style.display = "none";
+
+		function addStocksInTable(stocks){
+			var table = document.getElementById("searchTableBody");
+			for (i = 0; i < stocks.length; i++)
+			{
+				var tr = document.createElement("tr");
+				var sno = document.createElement("td");
+				var code = document.createElement("td");
+				var name = document.createElement("td");
+				var open = document.createElement("td");
+				var close = document.createElement("td");
+				var high = document.createElement("td");
+				var low = document.createElement("td");
+				var change = document.createElement("span");
+				
+				if(stocks[i].change<0){
+					$(change).attr('class','red-text');
+					$(change).append('<i class="material-icons">arrow_drop_down</i>');
 				}
+				else if(stocks[i].change>0){
+					$(change).attr('class','green-text');
+					$(change).append('<i class="material-icons">arrow_drop_up</i>');
+				}
+				else{
+					$(change).attr('class','grey-text');
+					$(change).append('<i class="material-icons">drag_handle</i>');
+				}
+				change.append(Math.round(Math.abs(stocks[i].change)*1000)/1000+"%");
+				sno.append(i+1)
+				code.append(stocks[i].SC_CODE);
+				name.append(stocks[i].SC_NAME);
+				open.append(stocks[i].OPEN);					
+				close.append(stocks[i].CLOSE);
+				close.append(change);
+				high.append(stocks[i].HIGH);
+				low.append(stocks[i].LOW);
+				
+				tr.appendChild(sno);
+				tr.appendChild(code);
+				tr.appendChild(name);
+				tr.appendChild(open);
+				tr.appendChild(close);
+				tr.appendChild(high);
+				tr.appendChild(low);			
+				
+				table.appendChild(tr);					
 			}
 		}
 		
 	</script>
-	
 	
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>

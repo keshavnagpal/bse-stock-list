@@ -6,8 +6,8 @@ from io import BytesIO
 from zipfile import ZipFile
 import pandas as pd
 
-r = redis.StrictRedis(host='sdztest.redis.cache.windows.net',
-        port=6380, db=0, password='4vjBFdTGgyiiefz4fvUZRqQ65L5wNFmnHxowVRylBKc=', ssl=True)
+r = redis.StrictRedis(host='',
+        port=6380, db=0, password='', ssl=True)
 
 def DownloadBSEFile():	
 	URL = 'https://www.bseindia.com/download/BhavCopy/Equity/'
@@ -42,9 +42,9 @@ def extractZipFile(resp):
 	stockdf = pd.read_csv(zipfile.namelist()[0])
 	return stockdf
 
-def saveFieldsToRedis(stockdf):
+def saveFieldsToRedisOld(stockdf):
 	stockCode = list(stockdf.SC_CODE)
-	stockName = list(stockdf.SC_NAME)
+	stockName = list(stockdf.SC_CODE)
 	stockHigh = list(stockdf.HIGH)
 	stockLow = list(stockdf.LOW)
 	stockOpen = list(stockdf.OPEN)
@@ -61,6 +61,15 @@ def saveFieldsToRedis(stockdf):
 		'change':stockDiffFromPrevClose,
 		'FileDate': r.get('FileDate').decode()
 		}
+	stockJson = json.dumps(stockDict)
+	r.set("stockJson",stockJson)
+
+def saveFieldsToRedis(stockdf):
+	final_stocks = stockdf[['SC_CODE','SC_NAME','HIGH','LOW','OPEN','CLOSE']]
+	final_stocks['change'] = (stockdf.CLOSE - stockdf.PREVCLOSE)/stockdf.CLOSE
+	stockDict = final_stocks.to_dict('records')
+	stockDict[0]['FileDate'] = r.get('FileDate').decode()	
+	print(final_stocks)
 	stockJson = json.dumps(stockDict)
 	r.set("stockJson",stockJson)
 
