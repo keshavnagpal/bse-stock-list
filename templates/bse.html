@@ -46,7 +46,7 @@
 		.scroll tbody {
 			display: block;
 			overflow-y: auto;
-			height: 75vh;
+			height: calc(82vh - 75px);
 		}
 	</style>
 </head>
@@ -55,10 +55,10 @@
 	<main>
 		<div class="container">
 			<div class="row headers">
-				<div class=" col s12 m3">
+				<div class=" col s12 m4">
 					<h4 id = "heading"  class="left teal-text"><strong>BSE</strong> Bhavlist</h4>					
 				</div>
-				<div class="col s12 m5">
+				<div class="col s12 m4">
 					<div class="input-field">
 						<input type="search" id="searchInput" onsearch="searchItem()" title="Type in a name">
 						<label for="searchInput">Search by Name</label>		
