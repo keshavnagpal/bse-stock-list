@@ -16,6 +16,9 @@
 		.container{
 			padding-top: 10px;
 		}
+		.input-field #searchInput{
+			cursor: pointer;
+		}
 	</style>
 </head>
 
@@ -26,23 +29,20 @@
 				<div class=" col s12 m3">
 					<h4 id = "heading"  class="left teal-text"><strong>BSE</strong> Bhavlist</h4>					
 				</div>
-				<div class="col s12 m5">
-					<div class="input-field">
-						<input type="search" id="searchInput" onsearch="searchItem()" title="Type in a name">
-						<label for="searchInput">Search by Name</label>		
-						<i class="material-icons" onclick="searchItem()">search</i>			
-					</div>	
-				</div>
+				<div class="col s12 m5 input-field">
+					<input type="text" id="searchInput" title="Type in a name">
+					<label for="searchInput">Search by name</label>					
+				</div>	
 				<div class = "col s12 m4">
 					<span id = "FileDate" class="grey-text right">Published by <a target="_blank" href="https://www.bseindia.com/markets/MarketInfo/BhavCopy.aspx">BSE</a> on: </span>
 				</div>				
 			</div>
-			
+
 			<div class="row">
 				<div class="col s12 m12">
-					<div id = "bseLoader" class="progress">
-						<div class="indeterminate"></div>
-					</div>
+						<div id = "bseLoader" class="progress">
+								<div class="indeterminate"></div>
+							</div>
 					<table class="striped responsive-table" id="searchTable">
 						<thead>
 							<tr>
@@ -60,11 +60,11 @@
 					</table>					
 				</div>
 			</div>
-			
+
 		</div>
 	</main>
 	<script>		
-		
+
 		$( document ).ready(function() {
 			fetch('/getBSEData')
 			.then(function (response) {				
@@ -77,9 +77,19 @@
 				$("#FileDate").append(FileDate);
 				addStocksInTable(stocks.slice(0,10));
 				$("#bseLoader").hide();
-			})		
+			})
+			var search = document.getElementById("searchInput");
+			
+			search.addEventListener("keyup", function(event) {
+				// Number 13 is the "Enter" key on the keyboard
+				if (event.keyCode === 13) {
+					// Cancel the default action
+					event.preventDefault();
+					searchItem();
+				}
+			});			
 		});
-		
+
 		function searchItem() {
 			$("#bseLoader").show();			
 			var stocks = JSON.parse(localStorage['stockData']);
@@ -101,7 +111,7 @@
 			addStocksInTable(stocksResult);
 			$("#bseLoader").hide();			
 		}
-		
+
 		function addStocksInTable(stocks){
 			var table = document.getElementById("searchTableBody");
 			for (i = 0; i < stocks.length; i++)
