@@ -45,7 +45,7 @@
 		 
 		.scroll tbody {
 			display: block;
-			overflow-y: auto;
+			overflow-y: scroll;
 			height: calc(82vh - 75px);
 		}
 	</style>
@@ -109,7 +109,8 @@
 				$("#FileDate").append(FileDate);
 				addStocksInTable(stocks.slice(0,10));
 				$("#bseLoader").hide();
-			})		
+			})
+					
 		});
 		
 		function searchItem() {
@@ -136,6 +137,7 @@
 		
 		function addStocksInTable(stocks){
 			var table = document.getElementById("searchTableBody");
+			
 			for (i = 0; i < stocks.length; i++)
 			{
 				var tr = document.createElement("tr");
@@ -170,6 +172,8 @@
 				high.append(stocks[i].HIGH);
 				low.append(stocks[i].LOW);
 				
+				close.style.marginTop = '-8px';
+
 				tr.appendChild(sno);
 				tr.appendChild(code);
 				tr.appendChild(name);
