@@ -1,7 +1,6 @@
 from flask import Flask, flash, redirect, render_template, g, Response, request, session, abort, jsonify
 import json
 from flask_cors import CORS
-from logger import logger
 import helpers as HM
 from flask_caching import Cache
 from flask_compress import Compress
