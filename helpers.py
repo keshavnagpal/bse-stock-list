@@ -6,8 +6,8 @@ from io import BytesIO
 from zipfile import ZipFile
 import pandas as pd
 
-r = redis.StrictRedis(host='',
-        port=6380, db=0, password='', ssl=True)
+r = redis.StrictRedis(host='sdztest.redis.cache.windows.net',
+        port=6380, db=0, password='4vjBFdTGgyiiefz4fvUZRqQ65L5wNFmnHxowVRylBKc=', ssl=True)
 
 def DownloadBSEFile():	
 	URL = 'https://www.bseindia.com/download/BhavCopy/Equity/'
