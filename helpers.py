@@ -49,7 +49,7 @@ def saveFieldsToRedisOld(stockdf):
 	stockLow = list(stockdf.LOW)
 	stockOpen = list(stockdf.OPEN)
 	stockClose = list(stockdf.CLOSE)
-	stockDiffFromPrevClose = list((stockdf.CLOSE - stockdf.PREVCLOSE)/stockdf.CLOSE)
+	stockDiffFromPrevClose = list(((stockdf.CLOSE - stockdf.PREVCLOSE)/stockdf.PREVCLOSE) * 100)
 	print(stockDiffFromPrevClose)
 	stockDict = {
 		'code':stockCode,
@@ -66,7 +66,7 @@ def saveFieldsToRedisOld(stockdf):
 
 def saveFieldsToRedis(stockdf):
 	final_stocks = stockdf[['SC_CODE','SC_NAME','HIGH','LOW','OPEN','CLOSE']]
-	final_stocks['change'] = ((stockdf.CLOSE - stockdf.PREVCLOSE)/stockdf.CLOSE) * 100
+	final_stocks['change'] = ((stockdf.CLOSE - stockdf.PREVCLOSE)/stockdf.PREVCLOSE) * 100
 	stockDict = final_stocks.to_dict('records')
 	stockDict[0]['FileDate'] = r.get('FileDate').decode()	
 	print(final_stocks)
