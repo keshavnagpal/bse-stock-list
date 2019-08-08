@@ -1,4 +1,7 @@
-cherrypy
+Flask
+flask_cors
+flask_caching
+flask_compress
 redis
 httplib2
 pandas
