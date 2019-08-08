@@ -42,31 +42,10 @@ def extractZipFile(resp):
 	stockdf = pd.read_csv(zipfile.namelist()[0])
 	return stockdf
 
-def saveFieldsToRedisOld(stockdf):
-	stockCode = list(stockdf.SC_CODE)
-	stockName = list(stockdf.SC_CODE)
-	stockHigh = list(stockdf.HIGH)
-	stockLow = list(stockdf.LOW)
-	stockOpen = list(stockdf.OPEN)
-	stockClose = list(stockdf.CLOSE)
-	stockDiffFromPrevClose = list(((stockdf.CLOSE - stockdf.PREVCLOSE)/stockdf.PREVCLOSE) * 100)
-	print(stockDiffFromPrevClose)
-	stockDict = {
-		'code':stockCode,
-		'name':stockName,
-		'high':stockHigh,
-		'low':stockLow,
-		'open':stockOpen,
-		'close':stockClose,
-		'change':stockDiffFromPrevClose,
-		'FileDate': r.get('FileDate').decode()
-		}
-	stockJson = json.dumps(stockDict)
-	r.set("stockJson",stockJson)
-
 def saveFieldsToRedis(stockdf):
 	final_stocks = stockdf[['SC_CODE','SC_NAME','HIGH','LOW','OPEN','CLOSE']]
 	final_stocks['change'] = ((stockdf.CLOSE - stockdf.PREVCLOSE)/stockdf.PREVCLOSE) * 100
+	final_stocks.loc[final_stocks['change']==math.inf]=0
 	stockDict = final_stocks.to_dict('records')
 	stockDict[0]['FileDate'] = r.get('FileDate').decode()	
 	print(final_stocks)
