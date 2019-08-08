@@ -54,5 +54,4 @@ def saveFieldsToRedis(stockdf):
 
 def getFieldsFromRedis():	
 	stockJson = r.get("stockJson")
-	# print(stockJson)
 	return stockJson
