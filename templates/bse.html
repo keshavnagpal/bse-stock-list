@@ -99,11 +99,13 @@
 		
 		$( document ).ready(function() {
 			fetch('/getBSEData')
-			.then(function (response) {				
+			.then(function (response) {								
 				return response.json();
 			})
 			.then(function (stocks) {		
 				// Save stock data in local Storage
+				debugger
+				console.log(stocks);
 				localStorage['stockData'] = JSON.stringify(stocks);		
 				var FileDate = stocks[0].FileDate;
 				$("#FileDate").append(FileDate);
@@ -125,8 +127,11 @@
 				stocksResult = stocks.slice(0,10);
 			}
 			else{				
+				debugger
 				for(var i=0; i<stocks.length; i++){
-					if(stocks[i].SC_NAME.toUpperCase().indexOf(filter) > -1){
+					console.log(i);
+					console.log(stocks[i].SC_NAME);
+					if(stocks[i].SC_NAME.toString().toUpperCase().indexOf(filter) > -1){
 						stocksResult.push(stocks[i]);									
 					}
 				}

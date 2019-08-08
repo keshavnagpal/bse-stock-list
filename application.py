@@ -1,37 +1,36 @@
-from flask import Flask, flash, redirect, render_template, g, Response, request, session, abort, jsonify
+import cherrypy
 import json
-from flask_cors import CORS
 import helpers as HM
-from flask_caching import Cache
-from flask_compress import Compress
+import os
 
-cachetime = 100
-app = Flask(__name__)
-#This is for the app cache, not the bse data cache in redis
-cache = Cache(app, config={"CACHE_TYPE": "simple"})
-Compress(app)
+class Root(object):
+	@cherrypy.expose
+	def index(self):		
+		return "You're a curious fellow!"
 
-# To accept requests from any domain / IP
-CORS(app)
+	@cherrypy.expose
+	def bse(self):
+		BSEFile = HM.DownloadBSEFile()
+		stockdf = HM.extractZipFile(BSEFile)
+		HM.saveFieldsToRedis(stockdf)
+		return open("templates/bse.html")
 
-@app.route('/')
-def hello_world():
-	return 'You are a curious fellow!'
+	@cherrypy.expose
+	@cherrypy.tools.response_headers(headers=[('Content-Type', 'application/json')])
+	def getBSEData(self):		
+		return HM.getFieldsFromRedis()
 
-# since the files get updated everyday, this could be moved to a scheduled webjob
-@cache.memoize(timeout=10000)
-@app.route('/bse')
-def bse():
-	# DownloadAndSaveBSEToRedis()
-	BSEFile = HM.DownloadBSEFile()
-	stockdf = HM.extractZipFile(BSEFile)
-	HM.saveFieldsToRedis(stockdf)
-	return render_template('bse.html')
 
-@app.route("/getBSEData", methods=['GET'])
-def getBSEData():		
-	return HM.getFieldsFromRedis()
+CP_CONF = {
+	'/media': {
+		'tools.staticdir.on': True,
+		'tools.staticdir.dir': os.path.abspath('./') # staticdir needs an absolute path
+		}
+	}
+app = cherrypy.Application(Root(),'/', CP_CONF)
 
- 
 if __name__ == '__main__':
-	app.run(debug=True)
+	from wsgiref.simple_server import make_server
+
+	httpd = make_server('', 5000, app)
+	httpd.serve_forever()
