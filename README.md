@@ -1,4 +1,5 @@
 # Read Me
+Demo: https://bselist.azurewebsites.net/bse
 
 This Application:
 Downloads -> Unzip -> Parses the Latest Bhav copy from https://www.bseindia.com/markets/MarketInfo/BhavCopy.aspx
