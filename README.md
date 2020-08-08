@@ -1,9 +1,10 @@
 # Read Me
-Demo: https://bselist.azurewebsites.net/bse
 
 This Application:
 Downloads -> Unzip -> Parses the Latest Bhav copy from https://www.bseindia.com/markets/MarketInfo/BhavCopy.aspx
+
 Renders it in a clean interface enabling users to search across the stocks
+
 Ready to be hosted on Azure.
 
 Stack: 
